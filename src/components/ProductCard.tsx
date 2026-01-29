@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Product } from '../hooks/useProducts'
 import ProductModal from './ProductModal'
 import './styles/ProductCard.css'
@@ -8,21 +9,21 @@ interface ProductCardProps {
     index?: number
 }
 
-// Generate WhatsApp message URL with product name and price
-function generateWhatsAppLink(baseLink: string, productTitle: string, price?: string): string {
-    const phoneMatch = baseLink.match(/wa\.me\/(\d+)/);
-    if (phoneMatch) {
-        const phone = phoneMatch[1];
-        const priceText = price ? ` (Rp ${price})` : '';
-        const message = encodeURIComponent(`Halo, saya tertarik dengan produk "${productTitle}"${priceText}. Bisa info lebih lanjut?`);
-        return `https://wa.me/${phone}?text=${message}`;
-    }
-    return baseLink;
-}
-
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const whatsAppLink = generateWhatsAppLink(product.ctaLink, product.title, product.price);
+    const navigate = useNavigate();
+
+    // Navigate to checkout with product info
+    const handleBuy = () => {
+        const params = new URLSearchParams({
+            id: product.id,
+            title: encodeURIComponent(product.title),
+            price: product.price || '0',
+            download: encodeURIComponent(product.downloadLink),
+            image: product.image ? encodeURIComponent(product.image) : ''
+        });
+        navigate(`/checkout?${params.toString()}`);
+    };
 
     return (
         <>
@@ -74,14 +75,12 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                                 <path d="M7 17L17 7M17 7H7M17 7V17" />
                             </svg>
                         </button>
-                        <a
-                            href={whatsAppLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <button
                             className="btn btn-primary"
+                            onClick={handleBuy}
                         >
                             {product.ctaText}
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -91,7 +90,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                 product={product}
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                whatsAppLink={whatsAppLink}
+                onBuy={handleBuy}
             />
         </>
     )
