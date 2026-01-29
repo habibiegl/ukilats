@@ -1,367 +1,195 @@
-/* Modal Overlay */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-4);
-    animation: fadeIn 0.2s ease;
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Product } from '../hooks/useProducts'
+import './styles/ProductModal.css'
+
+interface ProductModalProps {
+    product: Product
+    isOpen: boolean
+    onClose: () => void
+    onBuy: () => void
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+// Parse price string to number
+function parsePrice(priceStr: string): number {
+    return parseInt(priceStr.replace(/\D/g, '')) || 0;
 }
 
-/* Modal Content */
-.modal-content {
-    background: linear-gradient(165deg, rgba(30, 30, 30, 0.98) 0%, rgba(15, 15, 15, 0.98) 100%);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-2xl);
-    max-width: 600px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    position: relative;
-    animation: slideUp 0.3s ease;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+// Format number to price string
+function formatPrice(num: number): string {
+    return num.toLocaleString('id-ID');
 }
 
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
+export default function ProductModal({ product, isOpen, onClose, onBuy }: ProductModalProps) {
+    const [selectedPackage, setSelectedPackage] = useState<number | null>(null);
+    const navigate = useNavigate();
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
+    // Reset selection when modal opens
+    useEffect(() => {
+        if (isOpen) {
+            setSelectedPackage(null);
+        }
+    }, [isOpen]);
 
-/* Close Button */
-.modal-close {
-    position: absolute;
-    top: var(--space-3);
-    right: var(--space-3);
-    z-index: 10;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-base);
-}
+    // Close on ESC key
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+        if (isOpen) {
+            document.addEventListener('keydown', handleEsc);
+            document.body.style.overflow = 'hidden';
+        }
+        return () => {
+            document.removeEventListener('keydown', handleEsc);
+            document.body.style.overflow = '';
+        };
+    }, [isOpen, onClose]);
 
-.modal-close:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: rotate(90deg);
-}
+    if (!isOpen) return null;
 
-/* Modal Header with Image */
-.modal-header {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-}
+    // Calculate prices
+    const basePrice = parsePrice(product.price || '0');
+    const packagePrice = selectedPackage !== null && product.packages
+        ? parsePrice(product.packages[selectedPackage].price)
+        : 0;
+    const totalPrice = basePrice + packagePrice;
 
-.modal-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+    // Get package name for checkout
+    const selectedPackageName = selectedPackage !== null && product.packages
+        ? product.packages[selectedPackage].name
+        : '';
 
-.modal-badges {
-    position: absolute;
-    bottom: var(--space-4);
-    left: var(--space-4);
-    display: flex;
-    gap: var(--space-2);
-}
+    // Handle buy with package
+    const handleBuyWithPackage = () => {
+        onClose();
 
-.modal-badge {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    padding: 6px 12px;
-    background: linear-gradient(135deg, #22C55E, #16A34A);
-    color: #000;
-    border-radius: var(--radius-md);
-}
+        // Build checkout URL with package info
+        const params = new URLSearchParams({
+            id: product.id,
+            title: encodeURIComponent(product.title + (selectedPackageName ? ` + ${selectedPackageName}` : '')),
+            price: formatPrice(totalPrice),
+            download: encodeURIComponent(product.downloadLink),
+            image: product.image ? encodeURIComponent(product.image) : ''
+        });
+        navigate(`/checkout?${params.toString()}`);
+    };
 
-/* Modal Body */
-.modal-body {
-    padding: var(--space-5) var(--space-6);
-}
+    // Determine if this product has packages
+    const hasPackages = product.packages && product.packages.length > 0;
 
-.modal-title {
-    font-size: var(--font-size-2xl);
-    font-weight: 700;
-    margin-bottom: var(--space-4);
-    color: var(--color-text-primary);
-}
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                {/* Close Button */}
+                <button className="modal-close" onClick={onClose}>×</button>
 
-/* Notice Box */
-.modal-notice {
-    display: flex;
-    gap: var(--space-3);
-    padding: var(--space-4);
-    background: rgba(34, 197, 94, 0.08);
-    border: 1px solid rgba(34, 197, 94, 0.2);
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-5);
-}
+                {/* Modal Header with Image */}
+                <div className="modal-header">
+                    {product.image && (
+                        <img
+                            src={product.image}
+                            alt={product.title}
+                            className="modal-image"
+                        />
+                    )}
+                    <div className="modal-badges">
+                        {product.badge && (
+                            <span className="modal-badge">{product.badge}</span>
+                        )}
+                    </div>
+                </div>
 
-.notice-icon {
-    width: 24px;
-    height: 24px;
-    background: #22C55E;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
-}
+                {/* Modal Body */}
+                <div className="modal-body">
+                    <h2 className="modal-title">{product.title}</h2>
 
-.notice-content {
-    flex: 1;
-}
+                    {/* Important Notice */}
+                    <div className="modal-notice">
+                        <div className="notice-icon">ℹ</div>
+                        <div className="notice-content">
+                            <strong>Deskripsi:</strong>
+                            <p>{product.description}</p>
+                        </div>
+                    </div>
 
-.notice-content strong {
-    color: #22C55E;
-    display: block;
-    margin-bottom: var(--space-1);
-}
+                    {/* Features */}
+                    {product.features && product.features.length > 0 && (
+                        <div className="modal-features">
+                            <h3 className="features-title">⭐ Fitur Premium</h3>
+                            <div className="features-box">
+                                {product.features.map((feature, idx) => (
+                                    <div key={idx} className="feature-item">
+                                        <svg className="feature-check" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                        <span>{feature}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-.notice-content p {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-    line-height: 1.6;
-    margin: 0;
-}
+                    {/* Packages - Radio Selection */}
+                    {hasPackages && (
+                        <div className="modal-packages">
+                            <h3 className="packages-title">Pilih Paket Langganan:</h3>
+                            <div className="packages-list">
+                                {product.packages!.map((pkg, idx) => (
+                                    <button
+                                        key={idx}
+                                        type="button"
+                                        className={`package-option ${pkg.isSpecial ? 'package-special' : ''} ${selectedPackage === idx ? 'package-selected' : ''}`}
+                                        onClick={() => setSelectedPackage(idx)}
+                                    >
+                                        <div className="package-radio">
+                                            <div className={`radio-circle ${selectedPackage === idx ? 'radio-checked' : ''}`}></div>
+                                        </div>
+                                        <span className="package-name">{pkg.name}</span>
+                                        {pkg.isSpecial && <span className="package-tag">SPECIAL</span>}
+                                        <span className="package-price">{pkg.price}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-/* Features Section */
-.modal-features {
-    margin-bottom: var(--space-5);
-}
+                    {/* Price & CTA */}
+                    <div className="modal-footer">
+                        <div className="modal-price">
+                            {product.originalPrice && (
+                                <span className="price-original">Rp {product.originalPrice}</span>
+                            )}
+                            {hasPackages && selectedPackage !== null ? (
+                                <div className="price-breakdown">
+                                    <span className="price-base">Aplikasi: Rp {product.price}</span>
+                                    <span className="price-package">+ Langganan: Rp {formatPrice(packagePrice)}</span>
+                                    <span className="price-total">Total: Rp {formatPrice(totalPrice)}</span>
+                                </div>
+                            ) : (
+                                <span className="price-current">Rp {product.price}</span>
+                            )}
+                        </div>
 
-.features-title {
-    font-size: var(--font-size-lg);
-    font-weight: 700;
-    margin-bottom: var(--space-4);
-    color: var(--color-text-primary);
-}
-
-.features-box {
-    padding: var(--space-4);
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-}
-
-.feature-item {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--space-2);
-    font-size: var(--font-size-sm);
-    color: var(--color-text-secondary);
-    line-height: 1.6;
-}
-
-.feature-item:not(:last-child) {
-    margin-bottom: var(--space-2);
-}
-
-.feature-check {
-    color: #22C55E;
-    flex-shrink: 0;
-    margin-top: 2px;
-}
-
-/* Packages Section */
-.modal-packages {
-    margin-bottom: var(--space-5);
-}
-
-.packages-title {
-    font-size: var(--font-size-base);
-    font-weight: 600;
-    margin-bottom: var(--space-3);
-    color: var(--color-text-primary);
-}
-
-.packages-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-}
-
-.package-option {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-4);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    cursor: pointer;
-    transition: all var(--transition-base);
-    text-decoration: none;
-}
-
-.package-option:hover {
-    background: rgba(34, 197, 94, 0.05);
-    border-color: rgba(34, 197, 94, 0.3);
-}
-
-.package-special {
-    background: rgba(34, 197, 94, 0.08);
-    border-color: rgba(34, 197, 94, 0.3);
-}
-
-.package-radio {
-    width: 20px;
-    height: 20px;
-    border: 2px solid var(--color-border);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.package-special .package-radio {
-    border-color: #22C55E;
-}
-
-/* Selected package state */
-.package-selected {
-    background: rgba(34, 197, 94, 0.15) !important;
-    border-color: #22C55E !important;
-}
-
-.package-selected .package-radio {
-    border-color: #22C55E;
-}
-
-.radio-circle {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: transparent;
-    transition: all var(--transition-base);
-}
-
-.radio-checked {
-    background: #22C55E;
-}
-
-.package-special .radio-circle {
-    background: transparent;
-}
-
-.package-name {
-    flex: 1;
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-}
-
-.package-tag {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    padding: 3px 8px;
-    background: linear-gradient(135deg, #22C55E, #16A34A);
-    color: #000;
-    border-radius: var(--radius-sm);
-}
-
-.package-price {
-    font-weight: 700;
-    color: #22C55E;
-    font-size: var(--font-size-base);
-}
-
-/* Modal Footer */
-.modal-footer {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: var(--space-4);
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--color-border);
-    flex-wrap: wrap;
-}
-
-.modal-price {
-    display: flex;
-    flex-direction: column;
-}
-
-.price-original {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-    text-decoration: line-through;
-}
-
-.price-current {
-    font-size: var(--font-size-2xl);
-    font-weight: 800;
-    color: #22C55E;
-}
-
-/* Price Breakdown for packages */
-.price-breakdown {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-}
-
-.price-base {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-}
-
-.price-package {
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-}
-
-.price-total {
-    font-size: var(--font-size-xl);
-    font-weight: 800;
-    color: #22C55E;
-    margin-top: var(--space-1);
-}
-
-.modal-footer .btn-lg {
-    padding: var(--space-4) var(--space-8);
-    font-size: var(--font-size-base);
-}
-
-.modal-footer .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: var(--color-text-muted);
+                        {hasPackages ? (
+                            <button
+                                onClick={handleBuyWithPackage}
+                                className="btn btn-primary btn-lg"
+                                disabled={selectedPackage === null}
+                            >
+                                {selectedPackage === null ? 'Pilih Paket Dulu' : `Langganan - Rp ${formatPrice(totalPrice)}`} →
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => { onClose(); onBuy(); }}
+                                className="btn btn-primary btn-lg"
+                            >
+                                {product.ctaText} →
+                            </button>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
 }
