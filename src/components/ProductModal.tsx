@@ -6,10 +6,10 @@ interface ProductModalProps {
     product: Product
     isOpen: boolean
     onClose: () => void
-    whatsAppLink: string
+    onBuy: () => void
 }
 
-export default function ProductModal({ product, isOpen, onClose, whatsAppLink }: ProductModalProps) {
+export default function ProductModal({ product, isOpen, onClose, onBuy }: ProductModalProps) {
     // Close on ESC key
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -114,14 +114,12 @@ export default function ProductModal({ product, isOpen, onClose, whatsAppLink }:
                                 <span className="price-current">Rp {product.price}</span>
                             )}
                         </div>
-                        <a
-                            href={whatsAppLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <button
+                            onClick={() => { onClose(); onBuy(); }}
                             className="btn btn-primary btn-lg"
                         >
                             {product.ctaText} →
-                        </a>
+                        </button>
                     </div>
                 </div>
             </div>
