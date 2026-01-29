@@ -13,7 +13,10 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const navigate = useNavigate();
 
-    // Navigate to checkout with product info
+    // Check if product has packages (subscription required)
+    const hasPackages = product.packages && product.packages.length > 0;
+
+    // Navigate to checkout with product info (for products without packages)
     const handleBuy = () => {
         const params = new URLSearchParams({
             id: product.id,
@@ -23,6 +26,17 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             image: product.image ? encodeURIComponent(product.image) : ''
         });
         navigate(`/checkout?${params.toString()}`);
+    };
+
+    // Handle CTA click - open modal if has packages, else go to checkout
+    const handleCtaClick = () => {
+        if (hasPackages) {
+            // Products with packages must select subscription first
+            setIsModalOpen(true);
+        } else {
+            // Products without packages go directly to checkout
+            handleBuy();
+        }
     };
 
     return (
@@ -77,7 +91,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
                         </button>
                         <button
                             className="btn btn-primary"
-                            onClick={handleBuy}
+                            onClick={handleCtaClick}
                         >
                             {product.ctaText}
                         </button>
