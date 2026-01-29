@@ -103,7 +103,7 @@ export interface SheetProduct {
     price: string;
     original_price: string;
     cta_text: string;
-    cta_link: string;
+    download_link: string;
     secondary_cta_text: string;
     secondary_cta_link: string;
     is_active: string;
