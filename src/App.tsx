@@ -1,4 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
+import { Analytics } from '@vercel/analytics/react'
 import Header from './components/Header'
 import Hero from './components/Hero'
 import About from './components/About'
@@ -31,11 +32,14 @@ function HomePage() {
 
 export default function App() {
     return (
-        <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/checkout" element={<CheckoutPage />} />
-            <Route path="/success" element={<SuccessPage />} />
-            <Route path="/pending" element={<PendingPage />} />
-        </Routes>
+        <>
+            <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/checkout" element={<CheckoutPage />} />
+                <Route path="/success" element={<SuccessPage />} />
+                <Route path="/pending" element={<PendingPage />} />
+            </Routes>
+            <Analytics />
+        </>
     )
 }
