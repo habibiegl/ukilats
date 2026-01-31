@@ -49,15 +49,21 @@ export default function DownloadPage() {
         try {
             // If Apps Script URL not configured, show error
             if (!APPS_SCRIPT_URL) {
+                console.error('APPS_SCRIPT_URL not configured');
                 setStatus('error');
                 setErrorMessage('Sistem sedang dalam konfigurasi. Silakan hubungi admin.');
                 return;
             }
 
+            console.log('Validating token:', tokenValue);
+            console.log('Apps Script URL:', APPS_SCRIPT_URL);
+
+            // Use fetch with redirect follow for Apps Script
             const response = await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
+                redirect: 'follow',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'  // Use text/plain to avoid CORS preflight
                 },
                 body: JSON.stringify({
                     action: 'validate-token',
@@ -65,7 +71,21 @@ export default function DownloadPage() {
                 })
             });
 
-            const result: TokenValidationResult = await response.json();
+            console.log('Response status:', response.status);
+            const responseText = await response.text();
+            console.log('Response text:', responseText);
+
+            let result: TokenValidationResult;
+            try {
+                result = JSON.parse(responseText);
+            } catch (e) {
+                console.error('Failed to parse response:', e);
+                setStatus('error');
+                setErrorMessage('Respons server tidak valid. Silakan coba lagi.');
+                return;
+            }
+
+            console.log('Parsed result:', result);
 
             if (result.valid && result.download_link) {
                 setStatus('valid');
