@@ -151,7 +151,7 @@ export default function DownloadPage() {
                         <p>{errorMessage}</p>
                         <p className="subtitle">Link download hanya valid selama 24 jam setelah pembelian.</p>
                         <a
-                            href="https://wa.me/6281252225088?text=Halo%20Admin,%20token%20download%20saya%20sudah%20kadaluarsa.%20Mohon%20bantuannya."
+                            href="https://t.me/ukilats"
                             className="btn btn-primary btn-lg"
                             target="_blank"
                             rel="noopener noreferrer"
@@ -177,7 +177,7 @@ export default function DownloadPage() {
                                 Kembali ke Home
                             </button>
                             <a
-                                href="https://wa.me/6281252225088?text=Halo%20Admin,%20token%20download%20saya%20tidak%20valid.%20Mohon%20bantuannya."
+                                href="https://t.me/ukilats"
                                 className="btn btn-primary"
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -204,7 +204,7 @@ export default function DownloadPage() {
                                 Coba Lagi
                             </button>
                             <a
-                                href="https://wa.me/6281252225088?text=Halo%20Admin,%20saya%20mengalami%20error%20saat%20download.%20Mohon%20bantuannya."
+                                href="https://t.me/ukilats"
                                 className="btn btn-primary"
                                 target="_blank"
                                 rel="noopener noreferrer"
