@@ -29,7 +29,7 @@ export default function PendingPage() {
                     </div>
 
                     <a
-                        href="https://wa.me/6281252225088"
+                        href="https://t.me/ukilats"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="btn btn-primary"
