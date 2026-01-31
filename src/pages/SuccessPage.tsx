@@ -56,7 +56,7 @@ export default function SuccessPage() {
                         <p>
                             ✅ Email konfirmasi berisi link download yang aman<br />
                             ⏰ Link valid selama 24 jam setelah pembelian<br />
-                            💬 Butuh bantuan? <a href="https://wa.me/6285701176337" target="_blank" rel="noopener noreferrer">Hubungi WhatsApp</a>
+                            💬 Butuh bantuan? <a href="https://t.me/ukilats" target="_blank" rel="noopener noreferrer">Hubungi Telegram</a>
                         </p>
                     </div>
 
