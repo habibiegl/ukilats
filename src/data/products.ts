@@ -48,7 +48,7 @@ export const products: Product[] = [
         description: 'Ubah pengunjung menjadi pembeli dengan desain landing page konversi tinggi. Desain premium & copywriting yang menjual.',
         badge: 'POPULAR',
         ctaText: 'Konsultasi',
-        ctaLink: 'https://wa.me/6285701176337?text=Halo%20Ukilats,%20saya%20mau%20konsultasi%20Landing%20Page',
+        ctaLink: 'https://t.me/ukilats',
         features: [
             'Desain Premium & Eksklusif',
             'Copywriting Hypnotic Selling',
@@ -56,9 +56,9 @@ export const products: Product[] = [
             'Mobile Responsive (HP & Tablet)'
         ],
         packages: [
-            { name: 'Paket Basic', price: 'Rp 100rb', link: 'https://wa.me/6285701176337?text=Halo%20Ukilats,%20saya%20mau%20konsultasi%20Landing%20Page%20Paket%20Basic%20seharga%20Rp100.000', features: ['1 Template Premium', '5 Katalog Produk', '3x Revisi Minor'] },
-            { name: 'Paket Business', price: 'Rp 250rb', link: 'https://wa.me/6285701176337?text=Halo%20Ukilats,%20saya%20mau%20konsultasi%20Landing%20Page%20Paket%20Business%20seharga%20Rp250.000', features: ['1 Template Premium', '10 Katalog Produk', '3x Revisi Minor'] },
-            { name: 'Paket Corporate', price: 'Rp 450rb', link: 'https://wa.me/6285701176337?text=Halo%20Ukilats,%20saya%20mau%20konsultasi%20Landing%20Page%20Paket%20Corporate%20seharga%20Rp450.000', features: ['1 Template Premium', '20 Katalog Produk', '3x Revisi Minor'] }
+            { name: 'Paket Basic', price: 'Rp 100rb', link: 'https://t.me/ukilats', features: ['1 Template Premium', '5 Katalog Produk', '3x Revisi Minor'] },
+            { name: 'Paket Business', price: 'Rp 250rb', link: 'https://t.me/ukilats', features: ['1 Template Premium', '10 Katalog Produk', '3x Revisi Minor'] },
+            { name: 'Paket Corporate', price: 'Rp 450rb', link: 'https://t.me/ukilats', features: ['1 Template Premium', '20 Katalog Produk', '3x Revisi Minor'] }
         ]
     },
     {
