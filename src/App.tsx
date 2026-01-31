@@ -10,6 +10,7 @@ import Footer from './components/Footer'
 import CheckoutPage from './pages/CheckoutPage'
 import SuccessPage from './pages/SuccessPage'
 import PendingPage from './pages/PendingPage'
+import DownloadPage from './pages/DownloadPage'
 
 // Home page component
 function HomePage() {
@@ -36,6 +37,7 @@ export default function App() {
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/success" element={<SuccessPage />} />
             <Route path="/pending" element={<PendingPage />} />
+            <Route path="/download" element={<DownloadPage />} />
         </Routes>
     )
 }
